@@ -13,13 +13,14 @@ describe Restforce::Concerns::Authentication do
     end
 
     context 'when there is authentication middleware' do
-      let(:authentication_middleware) { double('Authentication Middleware') }
+      let(:authentication_middleware_class) { double('Authentication Middleware') }
       subject(:result) { client.authenticate! }
 
       it 'authenticates using the middleware' do
-        client.stub :authentication_middleware => authentication_middleware
+        client.stub :authentication_middleware => :restforce_password
+        client.stub :authentication_middleware_class => authentication_middleware_class
         client.stub :options
-        authentication_middleware.
+        authentication_middleware_class.
           should_receive(:new).
           with(nil, client, client.options).
           and_return(double(:authenticate! => 'foo'))
@@ -36,7 +37,7 @@ describe Restforce::Concerns::Authentication do
         client.stub :username_password? => true
       end
 
-      it { should eq Restforce::Middleware::Authentication::Password }
+      it { should eq :restforce_password }
     end
 
     context 'when oauth options are provided' do
@@ -45,7 +46,7 @@ describe Restforce::Concerns::Authentication do
         client.stub :oauth_refresh? => true
       end
 
-      it { should eq Restforce::Middleware::Authentication::Token }
+      it { should eq :restforce_token }
     end
   end
 

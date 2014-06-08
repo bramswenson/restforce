@@ -1,3 +1,5 @@
+require 'restforce/middleware'
+
 module Restforce
   module Concerns
     module Authentication
@@ -5,17 +7,28 @@ module Restforce
       # Public: Force an authentication
       def authenticate!
         raise AuthenticationError, 'No authentication middleware present' unless authentication_middleware
-        middleware = authentication_middleware.new nil, self, options
+        middleware = authentication_middleware_class.new nil, self, options
         middleware.authenticate!
       end
 
       # Internal: Determines what middleware will be used based on the options provided
       def authentication_middleware
         if username_password?
-          Restforce::Middleware::Authentication::Password
+          :restforce_password
         elsif oauth_refresh?
-          Restforce::Middleware::Authentication::Token
+          :restforce_token
         end
+      end
+
+      def authentication_middleware_class
+        authentication_middlewares[authentication_middleware]
+      end
+
+      def authentication_middlewares
+        {
+          :restforce_password => Restforce::Middleware::Authentication::Password,
+          :restforce_token    => Restforce::Middleware::Authentication::Token
+        }
       end
 
       # Internal: Returns true if username/password (autonomous) flow should be used for

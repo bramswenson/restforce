@@ -319,13 +319,13 @@ module Restforce
       # id      - The id of the record. If field is specified, id should be the id
       #           of the external field.
       # select  - A String array denoting the fields to select.  If nil or empty array
-      #           is passed, all fields are selected.  
+      #           is passed, all fields are selected.
       # field   - External ID field to use (default: nil).
       #
       def select(sobject, id, select, field=nil)
         path = field ? "sobjects/#{sobject}/#{field}/#{id}" : "sobjects/#{sobject}/#{id}"
         path << "?fields=#{select.join(",")}" if select && select.any?
-        
+
         api_get(path).body
       end
 

@@ -25,7 +25,7 @@ describe Restforce do
       its(:adapter)                { should eq Faraday.default_adapter }
       [:username, :password, :security_token, :client_id, :client_secret,
        :oauth_token, :refresh_token, :instance_url, :compress, :timeout,
-       :proxy_uri, :authentication_callback, :mashify].each do |attr|
+       :proxy_uri, :authentication_callback].each do |attr|
         its(attr) { should be_nil }
       end
     end

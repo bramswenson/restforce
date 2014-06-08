@@ -39,7 +39,7 @@ describe Restforce::Middleware::Authentication do
     subject(:connection) { middleware.connection }
 
     its(:url_prefix)     { should eq(URI.parse('https://login.salesforce.com')) }
-    its(:proxy)          { should eq({ :uri => URI.parse('https://not-a-real-site.com') }) }
+    its('proxy.uri')     { should eq(URI.parse('https://not-a-real-site.com')) }
 
     describe '.builder' do
       subject(:builder) { connection.builder }

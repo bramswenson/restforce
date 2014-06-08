@@ -27,3 +27,15 @@ module Restforce
     end
   end
 end
+
+Faraday::Middleware.register_middleware \
+  :restforce_raise_error   => lambda { Restforce::Middleware::RaiseError },
+  :restforce_password      => lambda { Restforce::Middleware::Authentication::Password },
+  :restforce_token         => lambda { Restforce::Middleware::Authentication::Token },
+  :restforce_authorization => lambda { Restforce::Middleware::Authorization },
+  :restforce_instance_url  => lambda { Restforce::Middleware::InstanceURL },
+  :restforce_multipart     => lambda { Restforce::Middleware::Multipart },
+  :restforce_mashify       => lambda { Restforce::Middleware::Mashify },
+  :restforce_caching       => lambda { Restforce::Middleware::Caching },
+  :restforce_logger        => lambda { Restforce::Middleware::Logger },
+  :restforce_gzip          => lambda { Restforce::Middleware::Gzip }

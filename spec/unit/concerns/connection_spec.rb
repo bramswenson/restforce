@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'restforce/middleware'
 
 describe Restforce::Concerns::Connection do
   describe '.middleware' do

@@ -1,3 +1,5 @@
+require 'restforce/middleware'
+
 module Restforce
   module Concerns
     module Connection
@@ -20,33 +22,36 @@ module Restforce
 
       # Internal: Internal faraday connection where all requests go through
       def connection
-        @connection ||= Faraday.new(options[:instance_url], connection_options) do |builder|
-          # Parses JSON into Hashie::Mash structures.
-          builder.use      Restforce::Middleware::Mashify, self, options unless (options[:mashify] == false)
+        @connection ||= Faraday.new(options[:instance_url], connection_options) do |conn|
           # Handles multipart file uploads for blobs.
-          builder.use      Restforce::Middleware::Multipart
+          conn.use      :restforce_multipart
           # Converts the request into JSON.
-          builder.request  :json
-          # Handles reauthentication for 403 responses.
-          builder.use      authentication_middleware, self, options if authentication_middleware
-          # Sets the oauth token in the headers.
-          builder.use      Restforce::Middleware::Authorization, self, options
-          # Ensures the instance url is set.
-          builder.use      Restforce::Middleware::InstanceURL, self, options
-          # Parses returned JSON response into a hash.
-          builder.response :json, :content_type => /\bjson$/
-          # Caches GET requests.
-          builder.use      Restforce::Middleware::Caching, cache, options if cache
-          # Follows 30x redirects.
-          builder.use      FaradayMiddleware::FollowRedirects
-          # Raises errors for 40x responses.
-          builder.use      Restforce::Middleware::RaiseError
-          # Log request/responses
-          builder.use      Restforce::Middleware::Logger, Restforce.configuration.logger, options if Restforce.log?
-          # Compress/Decompress the request/response
-          builder.use      Restforce::Middleware::Gzip, self, options
+          conn.request  :json
 
-          builder.adapter  adapter
+          # Handles reauthentication for 403 responses.
+          conn.use      authentication_middleware, self, options if authentication_middleware
+          # Sets the oauth token in the headers.
+          conn.use      :restforce_authorization, self, options
+          # Ensures the instance url is set.
+          conn.use      :restforce_instance_url, self, options
+
+          # Follows 30x redirects.
+          conn.response :follow_redirects
+          # Parses returned JSON response into a hash.
+          conn.response :json, :content_type => /\bjson$/
+
+          # Parses JSON into Hashie::Mash structures.
+          conn.use      :restforce_mashify, self, options if mashify?
+          # Caches GET requests.
+          conn.use      :restforce_caching, cache, options if cache
+          # Raises errors for 40x responses.
+          conn.use      :restforce_raise_error
+          # Log request/responses
+          conn.use      :restforce_logger, Restforce.configuration.logger, options if Restforce.log?
+          # Compress/Decompress the request/response
+          conn.use      :restforce_gzip, self, options
+
+          conn.adapter  adapter
         end
       end
 
@@ -63,10 +68,9 @@ module Restforce
         }
       end
 
-      # Internal: Returns true if the middlware stack includes the
-      # Restforce::Middleware::Mashify middleware.
+      # Internal: Returns true if Restforce.configuration.mashify is truthy
       def mashify?
-        middleware.handlers.index(Restforce::Middleware::Mashify)
+        !(options[:mashify] === false)
       end
 
     end

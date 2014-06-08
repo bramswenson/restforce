@@ -119,7 +119,7 @@ module Restforce
 
     # Set to false if you want to skip conversion to Restforce::Sobjects and
     # Restforce::Collections.
-    option :mashify
+    option :mashify, :default => true
 
     # Faraday request read/open timeout.
     option :timeout

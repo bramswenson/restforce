@@ -7,7 +7,7 @@ end
 module Faraday
   module Parts
     class ParamPart
-      def build_part(boundary, name, value)
+      def build_part(boundary, name, value, headers={})
         part = ''
         part << "--#{boundary}\r\n"
         part << "Content-Disposition: form-data; name=\"#{name.to_s}\";\r\n"

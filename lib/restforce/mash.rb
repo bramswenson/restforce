@@ -50,7 +50,7 @@ module Restforce
     def dup
       self.class.new(self, @client, self.default)
     end
-  
+
     def convert_value(val, duping=false)
       case val
       when self.class

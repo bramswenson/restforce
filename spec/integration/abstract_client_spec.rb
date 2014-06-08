@@ -43,8 +43,10 @@ shared_examples_for Restforce::AbstractClient do
   describe '.org_id' do
     requests 'query\?q=select%20id%20from%20Organization', :fixture => 'sobject/org_query_response'
 
-    subject { client.org_id }
-    it { should eq '00Dx0000000BV7z' }
+
+    it 'should have an Id' do
+      client.org_id.should eq '00Dx0000000BV7z'
+    end
   end
 
   describe '.create' do

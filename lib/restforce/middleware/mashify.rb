@@ -13,6 +13,6 @@ module Restforce
     def body
       @env[:body]
     end
-  
+
   end
 end
